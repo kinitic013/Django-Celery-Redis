@@ -262,3 +262,4 @@ def calculate_uptime_last_week(store_id, now_utc):
         "uptime_percent": uptime_percent,
         "total_possible_hours": total_possible_minutes // 60,
     }
+    

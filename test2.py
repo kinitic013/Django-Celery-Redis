@@ -5,10 +5,11 @@ import pytz
 import psycopg2
 from collections import defaultdict
 from django.db import connection as conn
+import csv
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "loop_project.settings")
 django.setup()
-from store_monitor.models import StoreTimezone, StoreBusinessHour
+from store_monitor.models import StoreTimezone, StoreBusinessHour , Store
 
 reference_monday = datetime(2000, 1, 3).date()
 
@@ -139,8 +140,8 @@ def calculate_uptime_last_hour(store_id, now_utc):
         downtime = (1 - prob) * total_possible_uptime
         cursor.close()
         return {
-            "uptime_last_hour": uptime,
-            "downtime_last_hour": downtime,
+            "uptime": uptime,
+            "downtime": downtime,
             "timezone_used": tz_str,
             "query_period_utc": f"{start_time_utc} to {now_utc_normalized}",
             "query_period_local": f"{start_time_local} to {now_local}"
@@ -161,8 +162,8 @@ def calculate_uptime_last_hour(store_id, now_utc):
     total_down_time = inactive_duration / (active_duration + inactive_duration) * total_possible_uptime if (active_duration + inactive_duration) > 0 else 0
     cursor.close()
     return {
-        "uptime_last_hour": total_up_time,
-        "downtime_last_hour": total_down_time,
+        "uptime": total_up_time,
+        "downtime": total_down_time,
         "timezone_used": tz_str,
         "query_period_utc": f"{start_time_utc} to {now_utc_normalized}",
         "query_period_local": f"{start_time_local} to {now_local}"
@@ -208,16 +209,16 @@ def calculate_uptime_last_day(store_id, now_utc):
             result = calculate_uptime_last_hour(store_id,end_utc)
 
             # Add to accumulators (60 minutes max per hour)
-            total_uptime_minutes += result['uptime_last_hour']
-            total_possible_minutes += result['uptime_last_hour'] + result['downtime_last_hour']
+            total_uptime_minutes += result['uptime']
+            total_possible_minutes += result['uptime'] + result['downtime']
 
         current_local = next_local
 
     uptime_percent = (total_uptime_minutes / total_possible_minutes) * 100 if total_possible_minutes else 0
 
     return {
-        "uptime_hours": total_uptime_minutes//60,
-        "downtime_hours": total_possible_minutes//60 - total_uptime_minutes//60,
+        "uptime": total_uptime_minutes//60,
+        "downtime": total_possible_minutes//60 - total_uptime_minutes//60,
         "uptime_percent": uptime_percent,
         "total_possible_hours": total_possible_minutes//60,
     }
@@ -245,20 +246,42 @@ def calculate_uptime_last_week(store_id, now_utc):
 
             result = calculate_uptime_last_hour(store_id, end_utc)
 
-            total_uptime_minutes += result['uptime_last_hour']
-            total_possible_minutes += result['uptime_last_hour'] + result['downtime_last_hour']
+            total_uptime_minutes += result['uptime']
+            total_possible_minutes += result['uptime'] + result['downtime']
 
         current_local = next_local
 
     uptime_percent = (total_uptime_minutes / total_possible_minutes) * 100 if total_possible_minutes else 0
 
     return {
-        "uptime_hours": total_uptime_minutes // 60,
-        "downtime_hours": (total_possible_minutes - total_uptime_minutes) // 60,
+        "uptime": total_uptime_minutes // 60,
+        "downtime": (total_possible_minutes - total_uptime_minutes) // 60,
         "uptime_percent": uptime_percent,
         "total_possible_hours": total_possible_minutes // 60,
     }
-    
+
+def generate_report_util(now_utc):
+    all_stores = Store.objects.all()
+    writer = csv.writer(open('store_uptime_report.csv', 'w', newline=''))
+    writer.writerow(['store_id','uptime_last_hour(in minutes)', 'uptime_last_day(in hours)', 'uptime_last_week(in hours)', 'downtime_last_hour(in minutes)', 'downtime_last_day(in hours)', 'downtime_last_week(in hours)'])
+
+    for store in all_stores:
+        # Get the necessary data for each store
+        uptime_last_hour = calculate_uptime_last_hour(store.id, now_utc)
+        uptime_last_day = calculate_uptime_last_day(store.id, now_utc)
+        uptime_last_week = calculate_uptime_last_week(store.id, now_utc)
+
+        # Write the data to the CSV
+        writer.writerow([
+            store.id,
+            uptime_last_hour['uptime'],
+            uptime_last_day['uptime'],
+            uptime_last_week['uptime'],
+            uptime_last_hour['downtime'],
+            uptime_last_day['downtime'],
+            uptime_last_week['downtime'],
+        ])
+
 if __name__ == '__main__':
     # now = datetime(2024, 8, 1, 15, 45, 0, tzinfo=timezone.utc)
     now = datetime(2024, 10, 15, 5, 1, 9, tzinfo=timezone.utc)  # Example UTC time
@@ -272,4 +295,5 @@ if __name__ == '__main__':
     
     print("\n=== Uptime Calculation ===")
     result = calculate_uptime_last_week(store_id, now)
+    generate_report_util(now)
     print("\nResult:", result)
