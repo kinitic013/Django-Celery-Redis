@@ -127,8 +127,8 @@ erDiagram
         string timestamp_auto "auto_now_add=True"
     }
     
-    %% Styling - Force black text
-    %%{init: {'theme':'base', 'themeVariables': {'primaryColor': '#ffffff', 'primaryTextColor': '#000000', 'primaryBorderColor': '#000000', 'lineColor': '#000000', 'secondaryColor': '#f8f9fa', 'tertiaryColor': '#ffffff', 'background': '#ffffff', 'mainBkg': '#ffffff', 'secondaryBkg': '#f8f9fa', 'tertiaryBkg': '#ffffff', 'textColor': '#000000', 'labelTextColor': '#000000', 'attributeFill': '#ffffff', 'attributeStroke': '#000000'}}}%%
+    %% Styling - Force black text, white relation lines
+    %%{init: {'theme':'base', 'themeVariables': {'primaryColor': '#ffffff', 'primaryTextColor': '#000000', 'primaryBorderColor': '#000000', 'lineColor': '#ffffff', 'secondaryColor': '#f8f9fa', 'tertiaryColor': '#ffffff', 'background': '#ffffff', 'mainBkg': '#ffffff', 'secondaryBkg': '#f8f9fa', 'tertiaryBkg': '#ffffff', 'textColor': '#000000', 'labelTextColor': '#000000', 'attributeFill': '#ffffff', 'attributeStroke': '#000000', 'relationLabelColor': '#000000', 'relationLabelBackground': '#ffffff'}}}%%
 ```
 ---
 ## 🛠️ Setup Instructions
