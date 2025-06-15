@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Store, StoreTimezone, StoreBusinessHour, StoreStatus
+from .models import Store, StoreTimezone, StoreBusinessHour, StoreStatus , StoreReport
 
 
 class StoreSerializer(serializers.ModelSerializer):
@@ -26,3 +26,8 @@ class StoreStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = StoreStatus
         fields = ['store', 'timestamp_utc', 'status']
+
+class StoreReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoreReport
+        fields = ['status', 'timestamp_utc', 'report_file']

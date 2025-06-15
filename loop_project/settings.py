@@ -74,7 +74,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'loop_project.wsgi.application'
 
-
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 

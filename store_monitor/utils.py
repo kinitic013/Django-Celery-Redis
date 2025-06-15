@@ -6,7 +6,7 @@ import psycopg2
 from collections import defaultdict
 from django.db import connection as conn
 
-from store_monitor.models import StoreTimezone, StoreBusinessHour
+from store_monitor.models import StoreTimezone, StoreBusinessHour , Store
 
 reference_monday = datetime(2000, 1, 3).date()
 
@@ -262,4 +262,3 @@ def calculate_uptime_last_week(store_id, now_utc):
         "uptime_percent": uptime_percent,
         "total_possible_hours": total_possible_minutes // 60,
     }
-    

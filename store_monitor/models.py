@@ -63,3 +63,11 @@ class StoreStatus(models.Model):
 
     def __str__(self):
         return f"{self.store} - {self.status} at {self.timestamp_utc}"
+    
+    
+
+class StoreReport(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    timestamp_utc = models.DateTimeField(auto_now_add=True)
+    report_file = models.FileField(upload_to='reports/', null=True, blank=True)
+    status = models.CharField(max_length=100, default="pending")
