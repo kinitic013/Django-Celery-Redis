@@ -55,6 +55,7 @@ loop/
 * Asynchronous background processing using Celery
 * Store reports locally under `media/reports/`
 * REST API to trigger and fetch reports
+* Average time taken to generate report : 26.132088786000168seconds
 
 ---
 
