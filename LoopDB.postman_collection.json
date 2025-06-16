@@ -1,0 +1,46 @@
+{
+	"info": {
+		"_postman_id": "033e2644-10d2-4101-8523-86d80eb4995a",
+		"name": "LoopDB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "26503391"
+	},
+	"item": [
+		{
+			"name": "TRIGGER REPORT",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"timestamp_utc\" : \"2024-10-02 12:50:00\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8000/api/trigger_report"
+			},
+			"response": []
+		},
+		{
+			"name": "TEST ROUTE",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8000/api/"
+			},
+			"response": []
+		},
+		{
+			"name": "GET REPORT",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8000/api/get_report/c5330646-1c68-4f7d-a459-a3cac044c12f"
+			},
+			"response": []
+		}
+	]
+}
