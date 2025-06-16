@@ -4,19 +4,17 @@ import csv
 from celery import shared_task
 from django.conf import settings
 from django.utils import timezone
-from .models import StoreReport, Store
+from .models import StoreReport, Store , StoreTimezone
+import pytz
 from .utils import calculate_uptime_last_hour, calculate_uptime_last_day, calculate_uptime_last_week
 
 @shared_task
-def generate_store_report_task(report_id,now_utc=None):
+def generate_store_report_task(report_id, now_utc):
     report = StoreReport.objects.get(id=report_id)
     report.status = "running"
     report.save()
 
     try:
-        if(now_utc is None):
-            now_utc = timezone.now()
-        
         filename = f"store_report_{report_id}.csv"
         full_path = os.path.join(settings.MEDIA_ROOT, 'reports', filename)
 
@@ -34,9 +32,13 @@ def generate_store_report_task(report_id,now_utc=None):
             ])
 
             for store in Store.objects.all():
-                uptime_last_hour = calculate_uptime_last_hour(store.id, now_utc)
-                uptime_last_day = calculate_uptime_last_day(store.id, now_utc)
-                uptime_last_week = calculate_uptime_last_week(store.id, now_utc)
+
+                tz_obj = StoreTimezone.objects.filter(store_id=store.id).first()
+                tz_str = tz_obj.timezone_str if tz_obj else 'America/Chicago'
+                local_tz = pytz.timezone(tz_str)
+                uptime_last_hour = calculate_uptime_last_hour(store.id, now_utc, local_tz)
+                uptime_last_day = calculate_uptime_last_day(store.id, now_utc, local_tz)
+                uptime_last_week = calculate_uptime_last_week(store.id, now_utc, local_tz)
 
                 writer.writerow([
                     store.id,

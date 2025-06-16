@@ -2,13 +2,16 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from datetime import datetime
 from ..models import StoreReport
 from ..tasks import generate_store_report_task
 
 @api_view(['POST'])
 def trigger_report(request):
-    report = StoreReport.objects.create(status="pending")
-    generate_store_report_task.delay(str(report.id))  # Async background task
+    timestamp_string = request.data.get('timestamp_utc')
+    timestamp_utc = datetime.strptime(timestamp_string, "%Y-%m-%d %H:%M:%S")
+    report = StoreReport.objects.create(status="pending", timestamp_utc=timestamp_utc)
+    generate_store_report_task.delay(report_id = str(report.id), now_utc=timestamp_utc)  # Async background task
     return Response({
         "report_id": str(report.id),
         "status": "Report generation initiated"
